@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="./pictures/logo.png" type="image/x-icon">
+    <title>蜜蜂寻址-商铺信息</title>
+    <script>
+        // const BASE_URL = 'http://39.108.186.224'
+        // const BASE_URL = 'http://192.168.1.106'
+        const BASE_URL = ''
+    </script>
+    <script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+    <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
+    <script src="http://api.map.baidu.com/api?v=2.0&ak=VNekEeQpPj7NhVX9jxcjiC1onpZUNToQ"></script>
+    <script src="http://api.map.baidu.com/library/Heatmap/2.0/src/Heatmap_min.js"></script>
+    <link rel="stylesheet" href="./css/store.css">
+</head>
+<body>
+    <div id="app">
+        
+        <div class="top">
+            <div 
+                :class="{logo: true,'mobile-logo': cssData.windowWidth <= 500}"
+            >MFXZ</div>
+            <nav>
+                <li v-for='(item,i) in htmlData.topNavList' :key="i">{{item}}</li>
+            </nav>
+        </div>
+
+        <div class="adv-box">
+            <div class="inner-box">
+                <p class="logo">MFXZ</p>
+                <p class="title">专业定位寻址整体方案提供</p>
+                <p class="title2">Professional Orientation</p>
+            </div>
+        </div>
+
+        <div class="pos-box">
+
+            <div class="current-pos">
+                <img src="./pictures/location.png" alt="">
+                <p v-if='storeInfo'>{{storeInfo.store.storeAddress}}</p>
+            </div>
+
+            <div class="title-box">
+                <h2 class="title1">定位信息</h3>
+                <p class="title2">l o c a t e &nbsp;&nbsp; i n f o r m a t i o n</p>
+                <p class="title3">一 键 式 查 询 具 体 地 理 位 置 信 息 及 周 边 详 情</p>
+            </div>
+
+            <div :class="{'mobile-outer-banner': cssData.windowWidth <= 650}">
+                <ul 
+                    :class="{banner: true, 'mobile-banner': cssData.windowWidth <= 650}"
+                >
+                    <li v-for='item in htmlData.banner' :key="item.id">
+                        <img :src="item.imgSrc" alt="">
+                        <p class="title">{{item.title}}</p>
+                        <p>------</p>
+                        <div class="details">
+                            <p 
+                                class="detail"
+                                v-for='(detail,i) in item.details'
+                                :key="i"
+                            >{{detail}}</p>
+                        </div>
+                        <div 
+                            class="lng-lat" 
+                            v-if='item.id === 1 &&  storeInfo !== null'
+                        >
+                            <p class="lng">经度: {{storeInfo.store.location.split(',')[0]}}</p>
+                            <p class="lat">经度: {{storeInfo.store.location.split(',')[1]}}</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <button class="read-more-btn">READ MORE</button>
+
+        </div>
+
+        <div class="analysis-box">
+
+            <div class="title-box">
+                <h2 class="title1">数据分析</h2>
+                <p class="title2">D &nbsp;a &nbsp; t &nbsp; a &nbsp; &nbsp; &nbsp; a &nbsp; n &nbsp; a &nbsp; l &nbsp; y &nbsp; s &nbsp; i &nbsp; s</p>
+            </div>
+
+            <div :class="{'echarts-box': true, 'mobile-echarts-box': cssData.windowWidth <= 650}">
+                <!-- 曲线图 (五个分数) -->
+                <div id="echarts1" :class="{'mobile-echarts1': cssData.windowWidth <= 650}"></div>
+                
+                <!-- 饼图 (互补业态) -->
+                <!-- <div id="echarts2" :class="{'mobile-echarts2': cssData.windowWidth <= 650}"></div> -->
+
+                <!-- 雷达图, 不知道做什么 -->
+                <div id="echarts3" :class="{'mobile-echarts3': cssData.windowWidth <= 650}"></div>
+
+                <!-- 雷达图示例 -->
+                <div id="echarts4"></div>
+            </div>
+        </div>
+
+        <div class="map-box">
+            <div id="map"></div>
+            <ul class="map-utils">
+                <!-- <li @click='allToggler'>反选</li> -->
+                <li
+                    v-for="(item,i) in htmlData.mapUtils"
+                    :key="i"
+                    :style="{'background': item.isShow === true ? 'initial' : 'gray'}"
+                    @click='toggleShowMarker(item.type)'
+                >
+                    <img :src="item.img">
+                    <span>{{item.text}}({{item.number}})</span>
+                </li>
+                <li
+                    ref="hotMapToggler"
+                    @click='hotMapToggle'
+                >{{ htmlData.hotMapIsShow ? '隐藏热力图' : '显示热力图'}}</li>
+                <!-- <li
+                    ref="routeToggler"
+                    @click='routeToggle'
+                >{{ htmlData.routeIsShow ? '隐藏路线' : '显示路线'}}</li> -->
+                <li @click='reGetCurrentStore'>当前店铺</li>
+            </ul>
+        </div>
+
+        <h3 class="my-table-h3">当前选址点到以下住宅区的距离(500米范围内)</h3>
+        <div class="my-table">
+            <ul>
+                <li class="one-col">
+                    <p>住宅区</p>
+                    <p>距离</p>
+                </li>
+                <li class="item-home"
+                    v-show='homesInfo'
+                    v-for='(home,i) in homesInfo'
+                    :key="home.lng+','+home.lat"
+                    @click='gotoHome({
+                        lng: home.lng,
+                        lat: home.lat
+                    })'
+                >
+                    <p>A{{i+1}}</p>
+                    <p>{{home.distance}} 米</p>
+                </li>
+            </ul>
+        </div>
+
+        <div
+            v-if='storeInfo'
+            :class="{'details-box': true, 'mobile-details-box': cssData.windowWidth <= 650}"
+        >
+            <ul>
+                <li class="current-pos">
+                    <img src="./pictures/zhoubian.png" alt="">
+                    <p>{{storeInfo.store.storeAddress}}</p>
+                </li>
+    
+                <li class="area">
+                    <img src="./pictures/kongjianmianji-.png" alt="">
+                    <p>{{storeInfo.store.storeArea}} {{storeInfo.store.areaType}}</p>
+                </li>
+
+                <li class="rent">
+                    <img src="./pictures/yuezujin.png" alt="">
+                    <p>{{storeInfo.store.storeRent}} {{storeInfo.store.rentType}}</p>
+                </li>
+
+                <li class="name">
+                    <img src="./pictures/dianchang.png" alt="">
+                    <p>{{storeInfo.store.publisherName}}</p>
+                </li>
+
+                <li class="state">
+                    <img src="./pictures/dianpuzhuangtai.png" alt="">
+                    <p>{{storeInfo.store.rentState}}</p>
+                </li>
+            </ul>
+
+            <img
+                v-if='storeInfo'
+                :class="{'store-cover': true, 'mobile-store-cover': cssData.windowWidth <= 650}" 
+                :src="storeInfo.store.storeImg" alt=""
+            >
+        </div>
+
+    </div>
+
+    <footer id="footer" v-show='cssData.windowWidth > 650'>
+        <div class="top">
+            <ul v-for='col in htmlData.footer' :key="col.id">
+                <li>{{col.top}}</li>
+                <br>
+                <li v-for='item in col.items'>{{item}}</li>
+            </ul>
+
+            <div class="QR-code-box">
+                <span>关注我们</span>
+                <img src="./pictures/QRcode.png" alt="">
+            </div>    
+        </div>
+
+        <div class="bottom1">24小时服务热线: 00000000000 Mail: 000000@gmail.com</div>
+        <div class="bottom2">@ &nbsp; 2 0 2 0 &nbsp; M F X Z &nbsp; A L L &nbsp; R I G H T S &nbsp; R E S E R V E D</div>
+    </footer>
+    
+    <script src="./js/store1.js"></script>
+    <script src="./js/store.js"></script>
+</body>
+</html>

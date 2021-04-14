@@ -1,0 +1,35 @@
+server:
+  port: 80
+#  context-path: /
+
+spring:
+  #database
+  datasource:
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/beeaddressing?useSSL=false&characterEncoding=utf-8&serverTimezone=UTC
+  #email
+  mail:
+    username: fuxiangk.sun@foxmail.com
+    password: wyzgxqvfsdwtdhef
+    host: smtp.qq.com
+    properties:
+      mail:
+        smtp:
+          ssl:
+            enable: true
+#mybatis
+mybatis:
+  config-location: classpath:mybatis/mybatis-config.xml
+  mapper-locations: classpath:mybatis/mappers/*.xml
+
+#MD5加密
+password:
+  salt: geelysdafaqj23ou89ZXcj@#$@#$#@KJdjklj;D../dSF.,
+god:
+#72059bc31b3a917bd36a4689d86e9df2
+#  c3af2eaa9631f9b45bac3b59d143e6fa
+#  9643303b988d7b8fd7eebb6a295b865e
+  key: c3af2eaa9631f9b45bac3b59d143e6fa
+  radius: 500

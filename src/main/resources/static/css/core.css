@@ -1,0 +1,643 @@
+/* 下面两个是去掉百度地图的logo的 */
+.BMap_cpyCtrl {
+    display: none;
+}
+.anchorBL {
+    display: none;
+}
+
+[v-cloak] {
+    display: none;
+}
+
+*{
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    box-sizing: border-box;
+}
+a{
+    text-decoration-line: none;
+    color: black;
+}
+li{
+    list-style-type: none;
+}
+body{
+    /* background: rgb(255,230,153); */
+    background: #efefefbb;
+}
+
+#app{
+    padding-top: 60px; /* 最顶部60px */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+}
+
+.inner-app{
+    width: 90%;
+}
+
+/* 最顶部 */
+#pos-box{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    z-index: 1000;
+}
+#pos-box>.top{
+    width: 100vw;
+    height: 60px;
+    background: white;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, .2);
+}
+#pos-box .tip{
+    text-align: center;
+    line-height: 50px;
+    font-size: 16px;
+    transform: translateX(-15px);
+}
+#pos-box>.top>.toggler{
+    position: absolute;
+    top: 18px;
+    left: calc( 50vw + 140px );
+    transform: translateX(-15px);
+}
+#pos-box>.top>.toggler>img{
+    width: 35px;
+    height: 15px;
+    transition: .2s;
+}
+#pos-box>.selector{
+    transition: .5s;
+    background: white;
+    border-top: .5px solid rgb(220, 220, 220);
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, .2);
+    overflow: hidden;
+}
+#pos-box>.selector>p{
+    width: 100%;
+    height: 25px;
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, .2);
+    text-indent: 1em;
+}
+#pos-box .province-list,
+#pos-box .citys,
+#pos-box .countys{
+    padding: 0 25px;
+    display: flex;
+    flex-wrap: wrap;
+    line-height: 45px;
+    font-size: 14px;
+    border-bottom: .5px solid rgb(220, 220, 220);
+
+    height: 120px;
+    overflow-y: scroll;
+}
+#pos-box .countys{
+    border: none;
+}
+#pos-box .province-list>li,
+#pos-box .citys>li,
+#pos-box .countys>li{
+    width: 60px;
+    text-align: center;
+    cursor: pointer;
+}
+#pos-box .province-list>li.active,
+#pos-box .citys>li.active,
+#pos-box .countys>li.active{
+    font-weight: bold;
+}
+#pos-box .province-list>li:hover,
+#pos-box .citys>li:hover,
+#pos-box .countys>li:hover{
+    color: red;
+}
+
+/* 第二个顶部, 首页/定位测评... */
+header{
+    width: 100%;
+    height: 50px;
+    display: flex;
+    justify-content: space-between;
+    background: white;
+}
+header nav{
+    display: flex;
+    justify-content: space-around;
+    width: 800px;
+    height: 100%;
+    line-height: 50px;
+}
+header nav>li{
+    cursor: pointer;
+    font-weight: bold;
+}
+header nav>li:hover{
+    opacity: .7;
+}
+/* 手机端的header */
+.mobile-header-toggler{
+    position: fixed;
+    top: 70px;
+    right: 5px;
+    z-index: 999; /* 比最顶部的地址选择器低一级 */
+}
+.mobile-header{
+    position: fixed;
+    top: 100px;
+    right: 5px;
+    width: 150px;
+    height: calc( 50px * 5 ); /* 五个li */
+    z-index: 999; /* 比最顶部的地址选择器低一级 */
+}
+.mobile-header>nav{
+    display: flex;
+    flex-direction: column;
+    border: 1px solid rgb(200,200,200);
+}
+.mobile-header>nav>li{
+    text-indent: 1em;
+    border-top: 1px solid rgb(200,200,200);
+}
+.mobile-header>nav>li:nth-child(1){
+    border-top: none;
+}
+/* header .wx{
+    margin-right: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 85px;
+    cursor: pointer;
+}
+header .wx:hover{
+    opacity: .7;
+}
+header .wx-logo{
+    width: 25px;
+    height: 25px;
+    background: rgb(80,189,134);
+    border-radius: 50%;
+    text-align: center;
+}
+header .wx img{
+    transform: translateY(2px);
+    width: 20px;
+    height: 20px;
+} */
+
+/* 商业捐款,职业测评 等nav */
+/* PC端 */
+.body-top-box{
+    display: flex;
+    align-items: center;
+    /* 宽度:高度 = 1000:400 */
+    width: 100%; /* 宽度差不多90vw */
+    height: calc(90vw / 1000 * 400);
+    background: rgb(47,36,4);
+}
+.body-top-box>nav{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 200px;
+    height: 280px;
+    color: white;
+}
+.body-top-box>nav>li{
+    margin-left: -10px; /* 微调 */
+    display: flex;
+    justify-content: space-between;
+    width: 100px;
+    height: 20px;
+    cursor: pointer;
+    opacity: .8;
+    font-size: 14px;
+}
+.body-top-box>nav>li:hover{
+    opacity: .7;
+}
+.body-top-box>nav>li>span{
+    width: 64px;
+}
+.body-top-box>nav>li>img{
+    margin-top: -4px; /* 微调 */
+    width: 30px;
+    height: 30px;
+}
+/* 手机端 */
+.mobile-body-top-box{
+    margin-top: 10px;
+}
+.mobile-body-top-box>nav{
+    display: none !important;
+}
+
+/* 轮播图banner */
+.banner{
+    position: relative;
+    flex: 1;
+    height: 100%;
+    overflow: hidden;
+}
+.banner>.left-btn, .banner>.right-btn{
+    display: block;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    z-index: 100;
+    cursor: pointer;
+}
+.banner>.left-btn:hover, .banner>.right-btn:hover{
+    opacity: .7;
+}
+.banner>.left-btn{
+    left: 10px;
+}
+.banner>.right-btn{
+    right: 10px;
+}
+.inner-banner{
+    display: flex;
+    width: 300%;
+    height: 100%;
+    transition: .5s;
+}
+.inner-banner>li{
+    display: block;
+    width: calc( 100% / 3 );
+    height: 100%;
+    background-size: 100% 100% !important;
+    background-repeat: no-repeat;
+}
+.inner-banner>li:nth-child(1){
+    background: url(../pictures/banner01.png);
+}
+.inner-banner>li:nth-child(2){
+    background: url(../pictures/banner02.png);
+}
+.inner-banner>li:nth-child(3){
+    background: url(../pictures/banner03.png);
+}
+.banner .dots{
+    display: flex;
+    justify-content: space-between;
+    position: absolute;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 15px;
+}
+.banner .dot{
+    width: 15px;
+    height: 15px;
+    background: black;
+    opacity: .35;
+    border-radius: 50%;
+    border: 2px solid gray;
+    cursor: pointer;
+}
+.banner .dot:hover{
+    transform: scale(1.2);
+}
+.banner .dots>.active{
+    opacity: .65;
+}
+
+/* 轮播图下的小广告条 */
+/* .hot{
+    display: flex;
+    justify-content: space-between;
+    padding: 0 25px;
+    height: 60px;
+    line-height: 60px;
+    background: white;
+}
+.hot>span:nth-child(2){
+    margin-left: 20px;
+    flex: 1;
+} */
+
+/* echarts */
+/* .echarts-title{
+    height: 70px;
+}
+.echarts-title>h3{
+    display: inline-block;
+    font-size: 18px;
+    font-weight: 500;
+    line-height: 70px;
+}
+.echarts-title>.detail{
+    margin-left: 50px;
+    color: rgb(150,150,150);
+    font-size: 16px;
+    line-height: 70px;
+}
+#echarts{
+    width: 1100px;
+    height: 500px;
+    background: white;
+}
+.echarts2-box{
+    width: 1100px;
+    height: 500px;
+    background: white;
+}
+#echarts2{
+    width: 500px;
+    height: 500px;
+} */
+
+/* core */
+/* 手机端 */
+.mobile-core{
+    flex-direction: column;
+    align-items: center;
+}
+.mobile-core>.none-list,
+.mobile-core>.pos-list{
+    flex: none !important;
+    width: 100% !important;
+}
+.mobile-core>.map-box{
+    margin-top: 20px;
+    width: 100% !important; /* width约等于90vw */
+    height: 90vw !important;
+}
+.mobile-core>.pos-list .detail{
+    width: calc(100% - 228px) !important;
+}
+/* PC端 */
+.core-title{
+    height: 70px;
+    line-height: 70px;
+    font-size: 18px;
+    font-weight: 500;
+}
+.core{
+    display: flex;
+    justify-content: space-between;
+}
+.core>.none-list,
+.core>.pos-list{
+    /* width: 470px; */
+    flex: 1;
+    height: 100%;
+    background: white;
+}
+.core>.none-list{
+    text-align: center;
+    line-height: 500px;
+    font-size: 18px;
+}
+.core>.pos-list{
+    padding: 0 15px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    height: 500px;
+    background: linear-gradient(white 80%,rgb(243,243,243));
+}
+.core>.pos-list>li{
+    margin-bottom: 25px;
+    width: 100%;
+}
+.core>.pos-list>li:nth-child(1){
+    margin-top: 25px;
+}
+.core>.pos-list>li:hover{
+    opacity: .75;
+}
+
+/* 列表的每个li */
+.core>.pos-list .top{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+.core>.pos-list .title{
+    width: calc(100% - 80px - 10px);
+    min-width: 200px;
+    font-weight: bold;
+    /* 文字超出显示省略号 */
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.core>.pos-list .mark{
+    width: 80px;
+    height: 25px;
+    text-align: center;
+    line-height: 25px;
+    background: rgb(66,165,0);
+    color: white;
+    border-radius: 50%;
+}
+.core>.pos-list .content{
+    display: flex;
+    align-items: center;
+    padding: 5px 0;
+}
+.core>.pos-list .store-img{
+    /* 宽度:高度 = 133:100 */
+    width: 150px;
+    height: 120px;
+}
+.core>.pos-list .detail{
+    padding: 0 20px;
+    width: calc(100% - 228px);
+    font-size: 14px;
+    color: rgb(100,100,100);
+}
+.core>.pos-list .detail>p{
+    margin-bottom: 5px;
+    /* 文字超出显示省略号 */
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+.core>.pos-list .detail>p:nth-child(1){
+    margin-top: 5px;
+}
+.core>.pos-list .detail>p.address{
+    max-height: 38.4px;
+}
+.core .content button{
+    margin-top: 40px;
+    margin-right: 5px;
+    width: 70px;
+    height: 25px;
+    background: rgb(243,243,243);
+    border-radius: 5px;
+    opacity: .65;
+}
+.core .content button:hover{
+    opacity: 1;
+}
+.core>.pos-list .more{
+    margin-bottom: 15px;
+    cursor: pointer;
+    text-align: center;
+    color: rgb(100,100,100);
+}
+.core>.pos-list .more:hover{
+    color: black;
+}
+.core>.pos-list .requesting{
+    line-height: 470px;
+    text-align: center;
+}
+
+/* 百度地图 */
+.core .map-box{
+    position: relative;
+    width: 500px;
+    height: 500px;
+}
+.core #map{
+    width: 100%;
+    height: 100%;
+}
+.map-box>.map-utils>.to-max{
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 60px;
+    height: 30px;
+    border-radius: 5px;
+    opacity: .7;
+}
+.map-box>.map-utils>.to-max:hover{
+    opacity: 1;
+}
+
+/* 广告栏 */
+/* 广告栏-顶部 */
+.advs-header{
+    display: flex;
+    justify-content: space-between;
+    height: 70px;
+    line-height: 70px;
+}
+.advs-header>.title{
+    font-size: 20px;
+    font-weight: 500;
+}
+.advs-header>.more{
+    cursor: pointer;
+    opacity: .6;
+}
+.advs-header>.more:hover{
+    opacity: 1;
+}
+/* 广告栏-列表 */
+/* PC端 */
+.advs-list{
+    display: flex;
+    justify-content: space-between;
+}
+.advs-list>li{
+    width: 200px;
+    height: 250px;
+    background: white;
+}
+.advs-list>li>img{
+    width: 200px;
+    height: 125px;
+}
+.advs-list>li>.bottom{
+    padding: 10px;
+}
+.advs-list>li>.bottom>p{
+    opacity: .7;
+}
+.advs-list .details{
+    margin-top: 5px;
+    display: flex;
+    justify-content: space-between;
+}
+.advs-list button{
+    margin-top: 5px;
+    margin-left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 30px;
+    background: radial-gradient(rgb(28, 110, 3),rgb(76, 197, 39));
+    border: none;
+    border-radius: 15px;
+    color: rgb(235, 235, 235);
+    cursor: pointer;
+}
+.advs-list button:hover{
+    opacity: .8;
+}
+/* 手机端 */
+.mobile-outer-advs-list{
+    overflow-y: hidden;
+    overflow-x: scroll;
+}
+.mobile-advs-list{
+    width: 1100px;
+}
+
+/* footer */
+footer{
+    margin-top: 50px;
+    padding: 0 5%;
+    width: 100%;
+    background: rgb(51,51,51);
+    font-size: 14px;
+    color: rgb(180,180,180);
+}
+footer>.body{
+    display: flex;
+    justify-content: space-between;
+    height: 200px;
+    overflow: hidden;
+}
+footer .logo{
+    margin-top: 20px;
+    width: 80px;
+    height: 80px;
+}
+footer>.body>.right{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 480px;
+}
+footer table tr{
+    display: flex;
+    justify-content: space-between;
+    width: 150px;
+}
+footer .QR-code-box{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: 150px;
+    height: 150px;
+}
+footer .QR-code-box>img{
+    width: 120px;
+    height: 120px;
+}
+footer>.bottom{
+    width: 100%;
+    height: 50px;
+    text-align: center;
+    line-height: 50px;
+    border-top: 1px solid rgb(9,11,8);
+}

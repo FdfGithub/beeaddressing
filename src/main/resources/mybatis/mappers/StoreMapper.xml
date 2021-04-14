@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.beeaddressing.dao.StoreMapper">
+    <select id="findStores" resultType="com.example.beeaddressing.pojo.Store">
+        select * from bee_store where location is not null and adcode is not null
+        <if test="cityId!=null">
+            and city_id = #{cityId}
+        </if>
+        <if test="countyId!=null">
+            and county_id = #{countyId}
+        </if>
+        order by score desc
+    </select>
+
+    <select id="findPowers" resultType="map">
+        select location,score,bee_store.adcode,county_name from bee_store,bee_county where
+        bee_store.county_id = bee_county.county_id
+        and location is not null
+        <if test="cityId!=null">
+            and bee_store.city_id = #{cityId}
+        </if>
+        <if test="countyId!=null">
+            and bee_store.county_id = #{countyId}
+        </if>
+    </select>
+
+    <update id="updateStores">
+        update bee_store SET score = ( CASE store_id
+        <foreach collection="scores" item="score" close="END">
+            WHEN #{score.id} THEN #{score.value}
+        </foreach>),score_points = ( CASE store_id
+        <foreach collection="scores" item="score" close="END">
+            WHEN #{score.id} THEN #{score.scorePoints}
+        </foreach>),`timestamp` = now() where score is null
+    </update>
+
+    <update id="updateStoresBatch">
+        update bee_store SET location = ( CASE store_id
+        <foreach collection="stores" item="store" close="END">
+            WHEN #{store.storeId} THEN #{store.location}
+        </foreach>),`timestamp` = now()
+    </update>
+
+    <select id="findStoresByStoreId" resultType="com.example.beeaddressing.pojo.Store">
+        select * from bee_store where location is not null and county_id = (select county_id from bee_store where store_id = #{storeId})
+    </select>
+
+
+    <update id="updateAdcode">
+        update bee_store INNER JOIN bee_county on bee_store.county_id = bee_county.county_id set adcode = #{adcode}
+        where county_name like #{cityName}
+    </update>
+
+    <select id="findStoresByCountyId" resultType="com.example.beeaddressing.pojo.Store">
+        select * from bee_store where county_id = #{countyId} and location is not null and score is null
+    </select>
+</mapper>

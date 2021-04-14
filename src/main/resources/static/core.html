@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>蜜蜂寻址</title>
+    <link rel="icon" href="./pictures/logo.png" type="image/gif" />
+    <script>
+        // const BASE_URL = 'http://39.108.186.224'
+        const BASE_URL = ''
+        // const BASE_URL = 'http://192.168.1.106'
+    </script>
+    <script src="./js/core1.js"></script>
+    <script src="./js/cityJson.js"></script>
+
+    <script src="https://cdn.staticfile.org/vue/2.2.2/vue.min.js"></script>
+    <script src="https://cdn.staticfile.org/echarts/4.3.0/echarts.min.js"></script>
+    <script type="text/javascript" src="http://api.map.baidu.com/api?v=2.0&ak=VNekEeQpPj7NhVX9jxcjiC1onpZUNToQ"></script>
+	<script type="text/javascript" src="http://api.map.baidu.com/library/Heatmap/2.0/src/Heatmap_min.js"></script>
+    <link rel="stylesheet" href="./css/core.css">
+</head>
+<body>
+<div id="app">
+<div class="inner-app">
+    <!-- 地址选择栏 -->
+    <div id="pos-box">
+        <div class="top">
+            <p class="tip"><span style="opacity: .7;">当前的地址是:</span> {{toggler.whichProvince===null ? '未选择' : toggler.whichProvince}} - {{toggler.whichCity===null ? '未选择' : toggler.whichCity}} - {{address.county===null ? '未选择' : address.county}}</p>
+            <div class="toggler"
+                @click='scrollPosSelector'
+            >
+                <img src="./pictures/up.png" :style="{transform: toggler.showPosSelector?'rotate(0)':'rotate(180deg)'}">
+            </div>
+        </div>
+
+        <div 
+            class="selector"
+            :style="toggler.showPosSelector ? 'height: 495px' : 'height: 0;'"
+        >
+            <!-- 省 -->
+            <p><span style="font-weight: bold;">{{toggler.whichProvince===null ? '未选择' : toggler.whichProvince}}</span> (按省份首字母选择)</p>
+            <ul class="province-list">
+                <li v-for='province in Object.keys(cityJson)' 
+                    :key="cityJson[province]"
+                    :class="{active: toggler.whichProvince == province}"    
+                >
+                    <div 
+                        class="province"
+                        @click='selectProvince(province)'
+                    >
+                        {{province}}
+                    </div>
+                </li>
+            </ul>
+            <!-- 市 -->
+            <p><span style="font-weight: bold;">{{toggler.whichProvince===null ? '未选择' : toggler.whichProvince}}</span> 的城市</p>
+            <ul 
+                class="citys"
+                v-if='toggler.whichProvince != null'
+            >
+                <li
+                    v-for='city in Object.keys(cityJson[toggler.whichProvince])'
+                    :class="{city: true, active: city == toggler.whichCity}"
+                    :key="cityJson[toggler.whichProvince][city]"
+                    @click="selectCity({
+                        city: city,
+                        cityId: cityJson[toggler.whichProvince][city],
+                    })"
+                >{{city}}</li>
+            </ul>
+            <div class="citys" v-else>未选择</div>
+            <!-- 县 -->
+            <p><span style="font-weight: bold;">{{toggler.whichCity===null ? '未选择' : toggler.whichCity}}</span> 的县</p>
+            <ul
+                class="countys"
+                v-if='toggler.whichCity != null && countyList != []'
+            >
+                <li 
+                    :class="{space: true, active: address.countyId === -1}" 
+                    @click='selectNoneCounty'
+                >无(不选)</li>
+                <li 
+                    :class="{county: true, active: county.countyName === address.county}"
+                    v-for='county in countyList'
+                    :key="county.countyId"
+                    @click="selectCounty({
+                        county: county.countyName,
+                        countyId: county.countyId,
+                    })"
+                >{{county.countyName}}</li>
+            </ul>
+            <div class="countys" v-else>{{ toggler.whichCity === null ? '未选择' : '数据正在请求中 或 请求失败' }}</div>
+        </div>
+    </div>
+
+    <!-- 导航栏的下拉控制器 -->
+    <div
+        class="mobile-header-toggler"
+        v-show='style.windowWidth <= 800'
+        @click='style.showNav = !style.showNav'
+    ><img src="./pictures/hidden-list.png" style="width: 28px; height: 28px;"></div>
+
+    <header
+        :class="{'mobile-header': style.windowWidth <= 800}"
+        v-show='style.windowWidth > 800 || style.showNav === true'
+    >
+        <nav :class="{'mobile-nav': style.windowWidth <= 800}">
+            <li
+                :class="{'mobile-li': style.windowWidth <= 800}"
+                v-for="(value,i) in ['首页','定位测评','特色培训','找工作/提供路线','策略/商机']"
+                :key="i"
+            >{{value}}</li>
+        </nav>
+        <!-- 废弃 start -->
+        <!-- <div class="wx">
+            <div class="wx-logo">
+                <img src="./pictures/weixin.png" alt="">
+            </div>
+            <span>微信版</span>
+        </div> -->
+        <!-- 废弃 end -->
+    </header>
+
+    <div :class="{'body-top-box': true, 'mobile-body-top-box': style.windowWidth <= 920}">
+        <nav>
+            <li v-for="(value,i) in ['商业捐款','职业测评','特色培训','找工作','商机','合作单位','更多']" :key="i">
+                <img :src="'./pictures/left-nav-0'+(i+1)+'.png'" alt="">
+                <span>{{value}}</span>
+            </li>
+        </nav>
+
+        <div class="banner">
+            <img class="left-btn" 
+                @click='left'
+                src="./pictures/left.png" alt=""
+            >
+            <img class="right-btn" 
+                @click='right'
+                src="./pictures/right.png" alt=""
+            >
+            <ul class="inner-banner" ref="innerBanner">
+                <li></li>
+                <li></li>
+                <li></li>
+            </ul>
+            <ul class="dots">
+                <li v-for='i in [0,1,2]' :key='i' 
+                    :class="{'dot': true, 'active': index == i}"
+                    @click='clickDot(i)'
+                ></li>
+            </ul>
+        </div>
+
+    </div>
+    
+    <!-- 热点聚焦 -->
+    <!-- <div class="hot">
+        <span style="color: green;">热点聚焦: </span>
+        <span>某某物业公司需100名高素质军人团队来拓展市场,现正招聘中...</span>
+        <span class="time">2020-07-29</span>
+    </div> -->
+
+    <!-- 店铺列表/热力图 -->
+    <h3 class="core-title">店铺列表/热力图</h3>
+    <div 
+        :class="{'core': true, 'mobile-core': style.windowWidth <= 1120}"
+    >
+        <p class="none-list" v-show='address.countyId === null && style.map_max_min === "max"'>请在页面顶部选择地址</p>
+        <ul class="pos-list"
+            v-show='address.countyId !== null && style.map_max_min === "max"'
+        >
+            <li 
+                v-for='storeInfo in storeListInfo' 
+                :key="storeInfo.store.storeId"
+                @click='selectStore(storeInfo)'
+            >
+                <div class="top">
+                    <p class="title">{{storeInfo.store.storeTitle}}</p>
+                    <div class="mark">
+                        {{storeInfo.score}}分
+                    </div>
+                </div>
+                <div class="content" :style="{'flex-direction': style.windowWidth <= 485 ? 'column' : 'row'}">
+                    <img class="store-img"
+                        :src="storeInfo.store.storeImg" alt=""
+                    >
+                    <div class="detail">
+                        <p class="address"><span style="font-weight: bold;">地址: </span> {{storeInfo.store.storeAddress}}</p>
+                        <p class="status"><span style="font-weight: bold;">状态: </span> {{storeInfo.store.rentState}}</p>
+                        <p class="area"><span style="font-weight: bold;">面积: </span> {{storeInfo.store.storeArea + storeInfo.store.areaType}}</p>
+                        <p class="price"><span style="font-weight: bold;">租金: </span> {{storeInfo.store.storeRent + storeInfo.store.rentType}}</p>
+                    </div>
+                    <button>
+                        <a :href="'./store.html?id='+storeInfo.store.storeId" target="_blank">查看详情</a>
+                    </button>
+                </div>
+            </li>
+            <!-- 伪界面start -->
+            <!-- <li v-for='i in [1,2,3,4,5]' :key="i">
+                <div class="top">
+                    <p class="title">普安8米层高可分割1楼大面积 店面展厅办公 可注册</p>
+                    <div class="mark">
+                        50分
+                    </div>
+                </div>
+                <div class="content">
+                    <img class="store-img" 
+                        :src="'./pictures/adv0'+i+'.png'" alt=""
+                    >
+                    <div class="detail">
+                        <p class="address">地址: 普安-连江路</p>
+                        <p class="status">状态: 空置中</p>
+                        <p class="area">面积: 500m²</p>
+                        <p class="price">租金: $100</p>
+                    </div>
+                </div>
+            </li> -->
+            <!-- 伪界面end -->
+            <div 
+                class="requesting"
+                v-show="requestState.storeList !== 'end' && requestState.storeList !== null"
+            >
+                数据请求中{{ellipsis}}
+            </div>
+            <div 
+                class="more"
+                @click='nextPageStoreList'
+                v-show="requestState.storeList === 'end' || requestState.storeList === null"
+            >
+                查看更多...
+            </div>
+        </ul>
+        <div class="map-box" ref="mapBox">
+            <div id="map"></div>
+            <div class="map-utils">
+                <button class="to-max" @click='map2max' v-show='style.map_max_min'>{{style.map_max_min === 'max' ? '最大化' : '最小化'}}</button>
+            </div>
+        </div>
+    </div>
+    
+<!-- 这些都不要了? start -->
+<!-- 曲线图 (五个分数) -->
+    <!-- <div class="echarts-title">
+        <h3>就业创业指数</h3>
+        <span class="detail">描述文字用来介绍该模板的功能和定义</span>
+    </div>
+    <div id="echarts"></div> -->
+
+<!-- 饼图 (互补业态) -->
+    <!-- <div class="echarts-title">
+        <h3>神马饼图</h3>
+        <span class="detail">花里胡哨的描述</span>
+    </div>
+    <div class="echarts2-box">
+        <div id="echarts2"></div>
+    </div> -->
+<!-- 这些都不要了? end -->
+
+    <!-- 广告栏 -->
+    <div class="advs-box">
+        <div class="advs-header">
+            <p class="title">特色培训</p>
+            <span class="more">查看更多>></span>
+        </div>
+
+        <div :class="{'mobile-outer-advs-list': style.windowWidth <= 1200}">
+            <ul :class="{'advs-list': true, 'mobile-advs-list': style.windowWidth <= 1200}">
+                <li v-for='i in [1,2,3,4,5]' :key="i">
+                    <img :src="'./pictures/adv0'+i+'.png'" alt="">
+                    <div class="bottom">
+                        <p>这是一段示例的详细说明文字这是一段实例的详</p>
+                        <div class="details">
+                            <span style="color: rgb(194, 117, 92);font-size: 17px;">$99.00</span>
+                            <span style="color: gray;font-size: 17px;">200人已报名</span>
+                        </div>
+                        <button>立刻报名</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<footer 
+    id="footer"        
+    :style="{'background': (style.windowWidth > 1000 ? 'rgb(51,51,51)' : 'rgb(243,243,243)' )}"
+>
+    <div 
+        class="body" 
+        v-show='style.windowWidth > 1000' 
+    >
+        <img class="logo" src="./pictures/indexLogo.png" alt="">
+        <div class="right">
+            <table>
+                <tr>
+                    <td>关于我们</td>
+                    <td>友情链接</td>
+                </tr>
+                <tr>
+                    <td><br></td>
+                    <td><br></td>
+                </tr>
+                <tr>
+                    <td>人才信息</td>
+                    <td>腾讯游戏</td>
+                </tr>
+                <tr>
+                    <td>关于我们</td>
+                    <td>百度一下</td>
+                </tr>
+                <tr>
+                    <td>最新资讯</td>
+                    <td>今日头条</td>
+                </tr>
+                <tr>
+                    <td>在线报名</td>
+                    <td>网易新闻</td>
+                </tr>
+                <tr>
+                    <td>职业评测</td>
+                    <td>知乎</td>
+                </tr>
+            </table>
+            <div class="QR-code-box">
+                <p>扫一扫添加微信公众号</p>
+                <img src="./pictures/QRcode.png" alt="">
+            </div>
+        </div>
+    </div>
+    <div class="bottom">
+        @ 2020MYWEBSITE ALL RIGHTS RESERVED
+    </div>
+</footer>
+</body>
+<script src="./js/core.js"></script>
+</html>

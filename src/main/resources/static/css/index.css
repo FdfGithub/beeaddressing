@@ -1,0 +1,85 @@
+*{
+    margin: 0;
+    padding: 0;
+    font-size: 16px;
+    user-select: none;
+}
+a{
+    text-decoration-line: none;
+    color: white;
+}
+body{
+    width: 100vw;
+    height: 100vh;
+    background: url(../pictures/bg.png) no-repeat;
+    background-size: 100% 100%;
+}
+
+.user{
+    position: fixed;
+    top: 50px;
+    right: 50px;
+}
+.user>.wx-logo,.user>.qq-logo{
+    margin: 0 5px;
+    cursor: pointer;
+    transform: translateY(4px);
+    width: 20px;
+    height: 20px;
+}
+.user>*:hover{
+    opacity: .8;
+}
+.user>span,.user>a{
+    color: white;
+}
+
+.logo{
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100px;
+    height: 100px;
+}
+
+hr{
+    position: fixed;
+    left: 50px;
+    top: 45%;
+    display: block;
+    width: 100px;
+    height: 1px;
+    background: white;
+}
+
+.center{
+    position: fixed;
+    left: 200px;
+    top: calc( 45% - 30px );
+}
+.center>h1,.center>h2{
+    color: white;
+    font-size: 60px;
+    font-weight: 100;
+}
+.center>.detail{
+    height: 50px;
+    line-height: 50px;
+    color: white;
+    opacity: .82;
+}
+
+.btn{
+    position: fixed;
+    left: 200px;
+    bottom: 50px;
+    width: 230px;
+    height: 40px;
+    background: rgba(255, 255, 255, .2);
+    border: 1px solid white;
+    border-radius: 20px;
+    color: white;
+}
+.btn:hover{
+    opacity: .8;
+}
